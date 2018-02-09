@@ -1,0 +1,130 @@
+﻿<Window x:Class="Warframe.Market.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Warframe.Market"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:controls="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="240" Width="525" MinWidth="525"
+        DataContext="{Binding Main, Source={StaticResource Locator}}">
+    <Window.Style>
+        <Style>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ListingVisibility}" Value="Visible">
+                    <DataTrigger.EnterActions>
+                        <RemoveStoryboard BeginStoryboardName="Down"></RemoveStoryboard>
+                        <RemoveStoryboard BeginStoryboardName="Up"></RemoveStoryboard>
+                        <BeginStoryboard Name="Down">
+                            <Storyboard>
+                                <DoubleAnimation
+                                         Storyboard.TargetProperty="Height"
+                                         To="650"
+                                         Duration="0:00:00.75" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ListingVisibility}" Value="Hidden">
+                    <DataTrigger.EnterActions>
+                        <RemoveStoryboard BeginStoryboardName="Up"></RemoveStoryboard>
+                        <RemoveStoryboard BeginStoryboardName="Down"></RemoveStoryboard>
+                        <BeginStoryboard Name="Up">
+                            <Storyboard>
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="Height"
+                                    To="240"
+                                    Duration="0:00:00.75" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+
+    <Window.Resources>
+        <Style TargetType="DataGrid" x:Key="ExpandListings">
+            <Style.Triggers>
+                <Trigger Property="Visibility" Value="Visible">
+                    <Trigger.EnterActions>
+                        <RemoveStoryboard BeginStoryboardName="ScrollUp"></RemoveStoryboard>
+                        <RemoveStoryboard BeginStoryboardName="ScrollDown"></RemoveStoryboard>
+                        <BeginStoryboard Name="ScrollDown">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Height"
+                                                 From="0" To="350"
+                                                 Duration="0:00:00.75"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+                <Trigger Property="Visibility" Value="Hidden">
+                    <Trigger.EnterActions>
+                        <RemoveStoryboard BeginStoryboardName="ScrollUp"></RemoveStoryboard>
+                        <RemoveStoryboard BeginStoryboardName="ScrollDown"></RemoveStoryboard>
+                        <BeginStoryboard Name="ScrollUp">
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Height"
+                                                 From="350" To="0"
+                                                 Duration="0:00:00.75"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding GetItemsCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid Width="520">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="190"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3.5*"/>
+                <RowDefinition></RowDefinition>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Image Grid.Column="1" Source="Content/Images/logo.png"></Image>
+            <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+                <Label Content="Item:" Margin="10,0,0,0"></Label>
+            </StackPanel>
+            <DockPanel Grid.Column="1" Grid.Row="2"  VerticalAlignment="Top">
+                <controls:AutoCompleteBox Height="24" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueMemberPath="item_name" Margin="10,0" IsTextCompletionEnabled="True" BorderThickness="1" BorderBrush="Black"/>
+                   <!--<Button Content="Search" Focusable="False" Width="80" Height="24" Command="{Binding GetListingForSelectedItemCommand}"/>-->
+            </DockPanel>
+        </Grid>
+        <Grid Grid.Row="1" Margin="0,20,0,0">
+            <StackPanel HorizontalAlignment="Center" Visibility="{Binding ListingVisibility, Mode=TwoWay}" VerticalAlignment="Center" Margin="50,0">
+                <TabControl Margin="25,0">
+                    <TabItem Header="Sell">
+                        <local:SortDataGrid Width="365" ItemsSource="{Binding SellListings}" Style="{StaticResource ExpandListings}" Visibility="{Binding ListingVisibility}" AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="In Game" Binding="{Binding online_ingame}"></DataGridCheckBoxColumn>
+                                <DataGridTextColumn Header="Name" Width="220" Binding="{Binding ingame_name}"></DataGridTextColumn>
+                                <DataGridTextColumn Header="Price" Binding="{Binding price}" SortDirection="Ascending"></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </local:SortDataGrid>
+                    </TabItem>
+                    <TabItem Header="Buy">
+
+                    </TabItem>
+                </TabControl>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
